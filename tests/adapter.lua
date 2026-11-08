@@ -1,9 +1,9 @@
 local Adapter = dofile("bookorbit-home.koplugin/bookorbit_adapter.lua")
 local called
-local live = { name = "bookorbit", browseCatalog = function(self, cached)
+local live = {}\nlive.name = "bookorbit"\nlive.browseCatalog = function(self, cached)
     assert(self == live)
     called = cached
-end }
+end
 assert(Adapter.isCompatible(live))
 assert(not Adapter.isCompatible({ name = "bookorbit" }))
 local ok = Adapter.open(live, true)
