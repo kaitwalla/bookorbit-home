@@ -1,0 +1,42 @@
+name: Validate and package
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Lua 5.1
+        run: sudo apt-get update && sudo apt-get install -y lua5.1 zip unzip
+      - name: Lua syntax checks
+        run: find bookorbit-home.koplugin tests -name '*.lua' -print0 | xargs -0 -n1 luac5.1 -p
+      - name: Plugin smoke tests
+        run: lua5.1 tests/smoke.lua
+      - name: Package plugin
+        run: bash scripts/package.sh
+      - uses: actions/upload-artifact@v4
+        with:
+          name: bookorbit-home-plugin
+          path: dist/*.zip
+          if-no-files-found: error
+  release:
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: test
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: bookorbit-home-plugin
+          path: dist
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: dist/*.zip
+          generate_release_notes: true
