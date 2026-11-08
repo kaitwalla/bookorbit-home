@@ -17,7 +17,7 @@ jobs:
       - name: Lua syntax checks
         run: find bookorbit-home.koplugin tests -name '*.lua' -print0 | xargs -0 -n1 luac5.1 -p
       - name: Plugin smoke tests
-        run: lua5.1 tests/smoke.lua
+        run: |\n          lua5.1 tests/smoke.lua\n          lua5.1 tests/adapter.lua
       - name: Package plugin
         run: bash scripts/package.sh
       - uses: actions/upload-artifact@v4
